@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Ghar Manager Pro - Ultimate Kitchen App</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- PDF & Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary: #8B5CF6;
+            --primary-dark: #7C3AED;
+            --primary-light: #A78BFA;
+            --secondary: #EC4899;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --gray: #6B7280;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        body.dark .glass-card {
+            background: rgba(30, 30, 30, 0.95);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+
+        .title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title p {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .badge-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .badge.premium {
+            background: linear-gradient(135deg, #FBBF24, #F59E0B);
+            color: #000;
+        }
+
+        .badge.trial {
+            background: linear-gradient(135deg, #34D399, #10B981);
+            color: white;
+        }
+
+        .badge.free {
+            background: linear-gradient(135deg, #9CA3AF, #6B7280);
+            color: white;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        body.dark .stat-card {
+            background: rgba(30,30,30,0.95);
+            color: white;
+        }
+
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+
+        .stat-icon.purple { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
+        .stat-icon.green { background: linear-gradient(135deg, #10B981, #047857); }
+        .stat-icon.blue { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+        .stat-icon.orange { background: linear-gradient(135deg, #F59E0B, #D97706); }
+
+        .stat-info h3 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-info p {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 15px;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        body.dark .tab.active {
+            background: var(--dark);
+            color: white;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--dark);
+        }
+
+        body.dark .form-group label {
+            color: #e0e0e0;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E5E7EB;
+            border-radius: 16px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        body.dark .form-control {
+            background: #2d2d2d;
+            border-color: #444;
+            color: white;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            width: 100%;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10B981, #047857);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #EF4444, #B91C1C);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 16px;
+            background: white;
+        }
+
+        body.dark .table-wrapper {
+            background: #2d2d2d;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #E5E7EB;
+            font-size: 14px;
+        }
+
+        body.dark td {
+            border-color: #444;
+        }
+
+        tr:hover {
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            margin: 0 4px;
+        }
+
+        .edit-btn {
+            background: var(--info);
+            color: white;
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Quick Add Grid */
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .quick-item {
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            border: none;
+            padding: 12px;
+            border-radius: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        body.dark .quick-item {
+            background: #2d2d2d;
+            color: white;
+        }
+
+        .quick-item:hover {
+            transform: scale(1.05);
+            background: var(--primary-light);
+            color: white;
+        }
+
+        /* Charts */
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+
+        body.dark .chart-container {
+            background: #2d2d2d;
+        }
+
+        /* Feedback Section */
+        .feedback-section {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 8px;
+            font-size: 24px;
+            color: #FBBF24;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        .rating-stars i:hover {
+            transform: scale(1.2);
+        }
+
+        /* Donate Card */
+        .donate-card {
+            background: linear-gradient(135deg, #FBBF24, #F59E0B);
+            padding: 20px;
+            border-radius: 20px;
+            color: #000;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .donate-btn {
+            background: white;
+            color: var(--dark);
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        /* Premium Box */
+        .premium-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 24px;
+            margin-top: 24px;
+        }
+
+        .premium-box h3 {
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .qr-img {
+            width: 150px;
+            height: 150px;
+            margin: 15px auto;
+            display: block;
+            border-radius: 16px;
+        }
+
+        .upi-link {
+            display: block;
+            background: rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: white;
+            margin: 8px 0;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 14px;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 500px;
+            width: 90%;
+            border-radius: 24px;
+            padding: 24px;
+        }
+
+        body.dark .modal-content {
+            background: #2d2d2d;
+            color: white;
+        }
+
+        .close-btn {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: white;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            opacity: 0.8;
+        }
+
+        .footer a:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="light">
+    <div class="app-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="title">
+                    <h1>Ghar Manager Pro</h1>
+                    <p>Your Ultimate Kitchen Companion</p>
+                </div>
+            </div>
+
+            <div class="badge-container">
+                <span class="badge trial" id="statusBadge">TRIAL (300d)</span>
+            </div>
+
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleTheme()" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="icon-btn" onclick="showSettings()">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="icon-btn" onclick="refreshApp()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="icon-btn" id="installBtn" style="display:none;">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalItems">0</h3>
+                    <p>Total Items</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalSpent">₹0</h3>
+                    <p>Total Spent</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="todayItems">0</h3>
+                    <p>Today's Items</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="avgSpent">₹0</h3>
+                    <p>Daily Average</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('entry')">➕ Add Entry</button>
+            <button class="tab" onclick="switchTab('history')">📜 History</button>
+            <button class="tab" onclick="switchTab('analytics')">📊 Analytics</button>
+            <button class="tab" onclick="switchTab('inventory')">📦 Inventory</button>
+            <button class="tab" onclick="switchTab('reports')">📑 Reports</button>
+        </div>
+
+        <!-- Tab Contents -->
+        <div id="entry-tab" class="tab-content" style="display: block;">
+            <div class="content-grid">
+                <!-- Left: Add Entry Form -->
+                <div class="glass-card">
+                    <h2 style="margin-bottom: 20px;">➕ Add New Entry</h2>
+                    
+                    <div class="row-2">
+                        <div class="form-group">
+                            <label>Category Type</label>
+                            <select id="typeCategory" class="form-control">
+                                <option value="Open">Open 🏪</option>
+                                <option value="Packet">Packet 📦</option>
+                                <option value="Bottle">Bottle 🫙</option>
+                                <option value="Loose">Loose ⚖️</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Main Category</label>
+                            <select id="mainCategory" class="form-control">
+                                <option value="Spices">🌶️ Spices</option>
+                                <option value="Oils">🫒 Oils</option>
+                                <option value="Grains">🌾 Grains</option>
+                                <option value="Vegetables">🥬 Vegetables</option>
+                                <option value="Dairy">🥛 Dairy</option>
+                                <option value="Snacks">🍪 Snacks</option>
+                                <option value="Bathroom">🧼 Bathroom</option>
+                                <option value="Fruits">🍎 Fruits</option>
+                                <option value="Meat">🍗 Meat</option>
+                                <option value="Frozen">❄️ Frozen</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Item</label>
+                        <select id="itemSelect" class="form-control"></select>
+                    </div>
+
+                    <div class="row-2">
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="text" id="quantity" class="form-control" placeholder="e.g., 2 kg, 1 dozen">
+                        </div>
+                        <div class="form-group">
+                            <label>Price per Unit (₹)</label>
+                            <input type="number" id="pricePerUnit" class="form-control" placeholder="60" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="row-2">
+                        <div class="form-group">
+                            <label>Total Amount (₹)</label>
+                            <input type="number" id="amount" class="form-control" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Payment Mode</label>
+                            <select id="paymentMode" class="form-control">
+                                <option value="Cash">💵 Cash</option>
+                                <option value="UPI">📱 UPI</option>
+                                <option value="Card">💳 Card</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row-2">
+                        <div class="form-group">
+                            <label>Shop Name</label>
+                            <input type="text" id="shopName" class="form-control" placeholder="Local Mart">
+                        </div>
+                        <div class="form-group">
+                            <label>Bill Photo</label>
+                            <input type="file" id="billPhoto" accept="image/*" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="notes" class="form-control" rows="2" placeholder="Any notes..."></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addEntry()">
+                        <i class="fas fa-plus-circle"></i> Add Entry
+                    </button>
+
+                    <!-- Quick Add -->
+                    <div style="margin-top: 24px;">
+                        <h3>⚡ Quick Add</h3>
+                        <div class="quick-grid">
+                            <button class="quick-item" onclick="quickAdd('Milk','1 L',60)">🥛 Milk</button>
+                            <button class="quick-item" onclick="quickAdd('Bread','1 Packet',40)">🍞 Bread</button>
+                            <button class="quick-item" onclick="quickAdd('Eggs','1 Dozen',80)">🥚 Eggs</button>
+                            <button class="quick-item" onclick="quickAdd('Rice','5 kg',250)">🍚 Rice</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Recent Activity -->
+                <div class="glass-card">
+                    <h2 style="margin-bottom: 20px;">📋 Recent Activity</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Qty</th>
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTable">
+                                <tr><td colspan="4" style="text-align:center;">No recent entries</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="history-tab" class="tab-content" style="display: none;">
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                    <h2>📜 Complete History</h2>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search..." style="width: 200px;" onkeyup="searchHistory()">
+                        <button class="btn btn-info" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn btn-warning" onclick="shareWhatsApp()"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                        <button class="btn btn-primary" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn btn-danger" onclick="clearAllData()"><i class="fas fa-trash"></i> Clear</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Shop</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="analytics-tab" class="tab-content" style="display: none;">
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📊 Spending Analytics</h2>
+                    <select id="chartPeriod" class="form-control" style="width: 150px;" onchange="updateCharts()">
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 20px; margin-top: 20px;">
+                    <div class="stat-card">
+                        <div class="stat-icon purple">🏆</div>
+                        <div>
+                            <p>Top Category</p>
+                            <h4 id="topCategory">-</h4>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">⭐</div>
+                        <div>
+                            <p>Top Item</p>
+                            <h4 id="topItem">-</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="inventory-tab" class="tab-content" style="display: none;">
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📦 Current Inventory</h2>
+                    <button class="btn btn-warning" onclick="checkLowStock()"><i class="fas fa-exclamation-triangle"></i> Check Low Stock</button>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Last Purchase</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="reports-tab" class="tab-content" style="display: none;">
+            <div class="glass-card">
+                <h2 style="margin-bottom: 20px;">📑 Generate Reports</h2>
+                <div class="row-2">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="reportStart" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="reportEnd" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Report Type</label>
+                    <select id="reportType" class="form-control">
+                        <option value="daily">Daily Summary</option>
+                        <option value="weekly">Weekly Summary</option>
+                        <option value="monthly">Monthly Summary</option>
+                        <option value="category">Category Wise</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" onclick="generateReportPDF()"><i class="fas fa-file-pdf"></i> PDF Report</button>
+                    <button class="btn btn-success" onclick="generateReportExcel()"><i class="fas fa-file-excel"></i> Excel Report</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donate & Feedback Section -->
+        <div class="feedback-section">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Feedback -->
+                <div class="glass-card">
+                    <h3>💬 Your Feedback</h3>
+                    <p>Rate this app:</p>
+                    <div class="rating-stars" id="ratingStars">
+                        <i class="far fa-star" onclick="setRating(1)"></i>
+                        <i class="far fa-star" onclick="setRating(2)"></i>
+                        <i class="far fa-star" onclick="setRating(3)"></i>
+                        <i class="far fa-star" onclick="setRating(4)"></i>
+                        <i class="far fa-star" onclick="setRating(5)"></i>
+                    </div>
+                    <textarea id="feedbackText" class="form-control" placeholder="Write your feedback..." rows="3"></textarea>
+                    <button class="btn btn-primary" style="margin-top: 10px;" onclick="submitFeedback()">Submit Feedback</button>
+                </div>
+
+                <!-- Donate -->
+                <div class="donate-card">
+                    <i class="fas fa-heart" style="font-size: 40px;"></i>
+                    <h3>Support the Developer</h3>
+                    <p>If you like this app, consider buying me a chai!</p>
+                    <div style="margin: 15px 0;">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8708986767@ybl&pn=Ankush&am=10" alt="QR Code" class="qr-img" style="width:120px;">
+                    </div>
+                    <a href="upi://pay?pa=8708986767@ybl&pn=Ankush&am=10&cu=INR" class="donate-btn">
+                        <i class="fas fa-mug-hot"></i> Donate ₹10
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Premium Box (hidden initially) -->
+        <div id="premiumBox" class="premium-box" style="display: none;">
+            <h3>💎 Unlock Premium Features</h3>
+            <p>Get PDF export, advanced reports, and more!</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8708986767@ybl&pn=Ankush&am=10" alt="QR" class="qr-img">
+            <a href="upi://pay?pa=8708986767@ybl&pn=Ankush&am=10&cu=INR" class="upi-link">💳 Pay ₹10 via UPI</a>
+            <a href="https://wa.me/qr/3V2B2OVSZPOON1" class="upi-link">📲 Send screenshot on WhatsApp</a>
+            <p style="font-size:12px; margin-top:10px;">After payment, admin will activate within 24h.</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <a href="#">Privacy</a> | <a href="#">Terms</a> | <a href="#">Contact</a>
+            <p style="margin-top:10px;">© 2026 Ghar Manager Pro. Made with ❤️ in India</p>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
+            <h3>⚙️ Settings</h3>
+            <div class="form-group">
+                <label>Currency</label>
+                <select id="currencySelect" class="form-control" onchange="setCurrency(this.value)">
+                    <option value="INR">₹ INR</option>
+                    <option value="USD">$ USD</option>
+                    <option value="EUR">€ EUR</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Language</label>
+                <select id="languageSelect" class="form-control" onchange="setLanguage(this.value)">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी</option>
+                    <option value="pa">ਪੰਜਾਬੀ</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Auto Backup</label>
+                <select class="form-control">
+                    <option>Daily</option>
+                    <option>Weekly</option>
+                    <option>Monthly</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="backupData()"><i class="fas fa-database"></i> Backup Now</button>
+            <button class="btn btn-success" style="margin-top:10px;" onclick="restoreData()"><i class="fas fa-undo"></i> Restore</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== MASTER DATA ====================
+        const masterItems = {
+            Spices: ["Mirch/मिर्च", "Haldi/हल्दी", "Dhaniya/धनिया", "Jeera/जीरा", "Garam Masala", "कड़ी पत्ता", "बेसन", "लौंग", "इलायची", "दालचीनी"],
+            Oils: ["Mustard Oil 1L", "Mustard Oil 5L", "Refined Oil 1L", "Olive Oil", "Coconut Oil", "Sunflower Oil"],
+            Grains: ["Rice/चावल", "Atta/आटा", "चना दाल", "मूंग दाल", "काली दाल", "मसूर दाल", "राजमा", "छोले", "पोहा", "चावल"],
+            Vegetables: ["टमाटर", "मटर", "गोबी", "आलू", "प्याज", "बैंगन", "भिंडी", "करेला", "लौकी", "तोरी"],
+            Dairy: ["Ghee", "पनीर", "दूध", "दही", "मक्खन", "क्रीम", "चीज़"],
+            Snacks: ["Biscuits", "Chips", "Samosa", "पकोड़े", "नमकीन", "मिठाई"],
+            Bathroom: ["Soap", "Shampoo", "Surf Excel", "Vanish", "टूथपेस्ट", "ब्रश"],
+            Fruits: ["सेब", "केला", "संतरा", "आम", "अंगूर", "अनार", "पपीता"],
+            Meat: ["चिकन", "मटन", "मछली", "अंडे"],
+            Frozen: ["Frozen Peas", "Frozen Corn", "Ice Cream", "Frozen Veggies"]
+        };
+
+        // ==================== STATE ====================
+        let kitchenData = [];
+        let inventory = {};
+
+        // Load from localStorage
+        function loadData() {
+            try {
+                kitchenData = JSON.parse(localStorage.getItem('kitchenData')) || [];
+                inventory = JSON.parse(localStorage.getItem('inventory')) || {};
+            } catch (e) {
+                kitchenData = [];
+                inventory = {};
+            }
+            renderAll();
+        }
+
+        function saveData() {
+            localStorage.setItem('kitchenData', JSON.stringify(kitchenData));
+            localStorage.setItem('inventory', JSON.stringify(inventory));
+            updateStats();
+        }
+
+        // ==================== UI RENDERING ====================
+        function renderAll() {
+            renderRecent();
+            renderHistory();
+            updateStats();
+            updateInventoryTable();
+        }
+
+        function renderRecent() {
+            const tbody = document.getElementById('recentTable');
+            const recent = kitchenData.slice(-5).reverse();
+            if (recent.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No recent entries</td></tr>';
+                return;
+            }
+            tbody.innerHTML = recent.map(e => `
+                <tr>
+                    <td>${e.item}</td>
+                    <td>${e.qty}</td>
+                    <td>₹${e.amount}</td>
+                    <td>${new Date(e.date).toLocaleTimeString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('historyTable');
+            if (kitchenData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No entries yet</td></tr>';
+                return;
+            }
+            tbody.innerHTML = kitchenData.slice().reverse().map(e => `
+                <tr>
+                    <td>${new Date(e.date).toLocaleString()}</td>
+                    <td>${e.item}</td>
+                    <td>${e.qty}</td>
+                    <td>${e.type}</td>
+                    <td>₹${e.amount}</td>
+                    <td>${e.shopName || '-'}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editEntry('${e.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" onclick="deleteEntry('${e.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            const totalItems = kitchenData.length;
+            const totalSpent = kitchenData.reduce((sum, e) => sum + e.amount, 0);
+            const today = new Date().toDateString();
+            const todayItems = kitchenData.filter(e => new Date(e.date).toDateString() === today).length;
+            const avg = totalItems ? Math.round(totalSpent / totalItems) : 0;
+
+            document.getElementById('totalItems').innerText = totalItems;
+            document.getElementById('totalSpent').innerText = '₹' + totalSpent;
+            document.getElementById('todayItems').innerText = todayItems;
+            document.getElementById('avgSpent').innerText = '₹' + avg;
+        }
+
+        function updateInventoryTable() {
+            const tbody = document.getElementById('inventoryTable');
+            const inv = Object.entries(inventory);
+            if (inv.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No inventory data</td></tr>';
+                return;
+            }
+            tbody.innerHTML = inv.map(([item, data]) => {
+                const status = data.quantity < 2 ? 'Low Stock ⚠️' : 'In Stock ✅';
+                const color = data.quantity < 2 ? '#EF4444' : '#10B981';
+                return `
+                    <tr>
+                        <td>${item}</td>
+                        <td>${data.quantity}</td>
+                        <td>${data.lastPurchase || '-'}</td>
+                        <td style="color:${color}">${status}</td>
+                        <td><button class="action-btn edit-btn" onclick="increaseStock('${item}')"><i class="fas fa-plus"></i></button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ==================== CRUD OPERATIONS ====================
+        window.addEntry = () => {
+            const item = document.getElementById('itemSelect').value;
+            const qty = document.getElementById('quantity').value.trim();
+            const type = document.getElementById('typeCategory').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const paymentMode = document.getElementById('paymentMode').value;
+            const shopName = document.getElementById('shopName').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+            const category = document.getElementById('mainCategory').value;
+
+            if (!item || !qty || !amount) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+
+            const entry = {
+                id: Date.now().toString(),
+                date: new Date().toISOString(),
+                item, qty, type, amount, paymentMode, shopName, notes, category
+            };
+
+            kitchenData.push(entry);
+
+            // Update inventory
+            if (!inventory[item]) {
+                inventory[item] = { quantity: 0, lastPurchase: '' };
+            }
+            inventory[item].quantity += 1;
+            inventory[item].lastPurchase = new Date().toLocaleString();
+
+            saveData();
+            renderAll();
+            clearForm();
+            showToast('Entry added successfully!');
+        };
+
+        function clearForm() {
+            document.getElementById('quantity').value = '';
+            document.getElementById('pricePerUnit').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('shopName').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('billPhoto').value = '';
+        }
+
+        window.quickAdd = (item, qty, amount) => {
+            // Set form values
+            const options = Array.from(document.getElementById('itemSelect').options);
+            for (let opt of options) {
+                if (opt.value.includes(item.split(' ')[0])) {
+                    document.getElementById('itemSelect').value = opt.value;
+                    break;
+                }
+            }
+            document.getElementById('quantity').value = qty;
+            document.getElementById('pricePerUnit').value = amount;
+            document.getElementById('amount').value = amount;
+            addEntry();
+        };
+
+        window.deleteEntry = (id) => {
+            if (confirm('Delete this entry?')) {
+                const entry = kitchenData.find(e => e.id === id);
+                if (entry) {
+                    // Reduce inventory
+                    if (inventory[entry.item]) {
+                        inventory[entry.item].quantity = Math.max(0, inventory[entry.item].quantity - 1);
+                    }
+                }
+                kitchenData = kitchenData.filter(e => e.id !== id);
+                saveData();
+                renderAll();
+                showToast('Entry deleted');
+            }
+        };
+
+        window.editEntry = (id) => {
+            const entry = kitchenData.find(e => e.id === id);
+            if (!entry) return;
+
+            // Set form values
+            document.getElementById('mainCategory').value = entry.category;
+            loadItems();
+            setTimeout(() => {
+                document.getElementById('itemSelect').value = entry.item;
+            }, 100);
+            document.getElementById('quantity').value = entry.qty;
+            document.getElementById('typeCategory').value = entry.type;
+            document.getElementById('amount').value = entry.amount;
+            document.getElementById('paymentMode').value = entry.paymentMode;
+            document.getElementById('shopName').value = entry.shopName || '';
+            document.getElementById('notes').value = entry.notes || '';
+
+            // Switch to entry tab
+            switchTab('entry');
+            
+            // Delete old entry after editing
+            deleteEntry(id);
+        };
+
+        window.increaseStock = (item) => {
+            if (inventory[item]) {
+                inventory[item].quantity++;
+                saveData();
+                updateInventoryTable();
+                showToast('Stock updated');
+            }
+        };
+
+        // ==================== ITEM LOADER ====================
+        function loadItems() {
+            const category = document.getElementById('mainCategory').value;
+            const select = document.getElementById('itemSelect');
+            select.innerHTML = '';
+            if (masterItems[category]) {
+                masterItems[category].forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item;
+                    opt.textContent = item;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        document.getElementById('mainCategory').addEventListener('change', loadItems);
+        document.getElementById('quantity').addEventListener('input', calculateTotal);
+        document.getElementById('pricePerUnit').addEventListener('input', calculateTotal);
+
+        function calculateTotal() {
+            const qty = parseFloat(document.getElementById('quantity').value) || 0;
+            const price = parseFloat(document.getElementById('pricePerUnit').value) || 0;
+            document.getElementById('amount').value = qty * price;
+        }
+
+        // ==================== SEARCH ====================
+        window.searchHistory = () => {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = kitchenData.filter(e => 
+                e.item.toLowerCase().includes(term) || 
+                (e.shopName && e.shopName.toLowerCase().includes(term)) ||
+                (e.notes && e.notes.toLowerCase().includes(term))
+            );
+            const tbody = document.getElementById('historyTable');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7">No matches</td></tr>';
+                return;
+            }
+            tbody.innerHTML = filtered.slice().reverse().map(e => `
+                <tr>
+                    <td>${new Date(e.date).toLocaleString()}</td>
+                    <td>${e.item}</td>
+                    <td>${e.qty}</td>
+                    <td>${e.type}</td>
+                    <td>₹${e.amount}</td>
+                    <td>${e.shopName || '-'}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editEntry('${e.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" onclick="deleteEntry('${e.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        // ==================== EXPORT ====================
+        window.exportToExcel = () => {
+            if (kitchenData.length === 0) return showToast('No data', 'error');
+            const ws = XLSX.utils.json_to_sheet(kitchenData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Kitchen');
+            XLSX.writeFile(wb, 'kitchen_data.xlsx');
+            showToast('Excel downloaded');
+        };
+
+        window.shareWhatsApp = () => {
+            if (kitchenData.length === 0) return showToast('No data', 'error');
+            let total = 0;
+            let msg = "🏠 *Ghar Manager Pro Report*\n\n";
+            kitchenData.slice(-10).forEach(e => {
+                total += e.amount;
+                msg += `• ${e.item} - ${e.qty} - ₹${e.amount}\n`;
+            });
+            msg += `\n*Total: ₹${total}*\n\nDownload app: https://pinknake.github.io`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+
+        window.downloadPDF = () => {
+            if (kitchenData.length === 0) return showToast('No data', 'error');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFillColor(106, 27, 154);
+            doc.rect(0, 0, 210, 30, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.text('Ghar Manager Pro - Kitchen Report', 105, 20, { align: 'center' });
+
+            const tableColumn = ["Date", "Item", "Qty", "Type", "Amount"];
+            const tableRows = [];
+
+            kitchenData.slice().reverse().forEach(e => {
+                const row = [
+                    new Date(e.date).toLocaleDateString(),
+                    e.item,
+                    e.qty,
+                    e.type,
+                    '₹' + e.amount
+                ];
+                tableRows.push(row);
+            });
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 40,
+                theme: 'grid',
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [139, 92, 246] }
+            });
+
+            doc.save('kitchen_report.pdf');
+            showToast('PDF downloaded');
+        };
+
+        // ==================== ANALYTICS ====================
+        let categoryChart, trendChart;
+
+        function updateCharts() {
+            const period = document.getElementById('chartPeriod').value;
+            const filtered = filterByPeriod(period);
+
+            // Category chart
+            const catMap = {};
+            filtered.forEach(e => {
+                catMap[e.category] = (catMap[e.category] || 0) + e.amount;
+            });
+            const categories = Object.keys(catMap);
+            const catAmounts = Object.values(catMap);
+
+            if (categoryChart) categoryChart.destroy();
+            const ctx1 = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(ctx1, {
+                type: 'pie',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: catAmounts,
+                        backgroundColor: ['#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#3B82F6', '#EF4444']
+                    }]
+                }
+            });
+
+            // Trend chart
+            const days = {};
+            filtered.forEach(e => {
+                const d = new Date(e.date).toLocaleDateString();
+                days[d] = (days[d] || 0) + e.amount;
+            });
+            const dates = Object.keys(days).sort();
+            const amounts = dates.map(d => days[d]);
+
+            if (trendChart) trendChart.destroy();
+            const ctx2 = document.getElementById('trendChart').getContext('2d');
+            trendChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Spending',
+                        data: amounts,
+                        borderColor: '#8B5CF6',
+                        tension: 0.3
+                    }]
+                }
+            });
+
+            // Top category and item
+            if (categories.length) {
+                const topCat = categories.reduce((a, b) => catMap[a] > catMap[b] ? a : b);
+                document.getElementById('topCategory').innerText = topCat;
+            }
+            const itemMap = {};
+            filtered.forEach(e => {
+                itemMap[e.item] = (itemMap[e.item] || 0) + e.amount;
+            });
+            const items = Object.keys(itemMap);
+            if (items.length) {
+                const topItem = items.reduce((a, b) => itemMap[a] > itemMap[b] ? a : b);
+                document.getElementById('topItem').innerText = topItem;
+            }
+        }
+
+        function filterByPeriod(period) {
+            const now = new Date();
+            return kitchenData.filter(e => {
+                const d = new Date(e.date);
+                if (period === 'week') {
+                    const weekAgo = new Date(now.getTime() - 7*24*60*60*1000);
+                    return d >= weekAgo;
+                } else if (period === 'month') {
+                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+        }
+
+        // ==================== INVENTORY ====================
+        window.checkLowStock = () => {
+            const low = Object.entries(inventory).filter(([_, data]) => data.quantity < 2);
+            if (low.length) {
+                showToast(`⚠️ ${low.length} items low in stock!`, 'warning');
+            } else {
+                showToast('✅ All items sufficient');
+            }
+        };
+
+        // ==================== REPORT GENERATION ====================
+        window.generateReportPDF = () => {
+            const start = document.getElementById('reportStart').value;
+            const end = document.getElementById('reportEnd').value;
+            if (!start || !end) return showToast('Select dates', 'error');
+
+            const filtered = kitchenData.filter(e => {
+                const d = e.date.split('T')[0];
+                return d >= start && d <= end;
+            });
+
+            if (filtered.length === 0) return showToast('No data in range', 'error');
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFillColor(139, 92, 246);
+            doc.rect(0, 0, 210, 30, 'F');
+            doc.setTextColor(255,255,255);
+            doc.setFontSize(16);
+            doc.text('Custom Report', 105, 20, { align: 'center' });
+            doc.setFontSize(10);
+            doc.setTextColor(0,0,0);
+            doc.text(`Period: ${start} to ${end}`, 20, 40);
+
+            const tableColumn = ["Date", "Item", "Qty", "Amount"];
+            const tableRows = filtered.map(e => [
+                new Date(e.date).toLocaleDateString(),
+                e.item,
+                e.qty,
+                '₹' + e.amount
+            ]);
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 50,
+                theme: 'striped'
+            });
+
+            doc.save('custom_report.pdf');
+            showToast('Report generated');
+        };
+
+        window.generateReportExcel = () => {
+            const start = document.getElementById('reportStart').value;
+            const end = document.getElementById('reportEnd').value;
+            if (!start || !end) return showToast('Select dates', 'error');
+            const filtered = kitchenData.filter(e => {
+                const d = e.date.split('T')[0];
+                return d >= start && d <= end;
+            });
+            if (filtered.length === 0) return showToast('No data', 'error');
+            const ws = XLSX.utils.json_to_sheet(filtered);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Report');
+            XLSX.writeFile(wb, `report_${start}_to_${end}.xlsx`);
+            showToast('Excel report downloaded');
+        };
+
+        // ==================== FEEDBACK ====================
+        let currentRating = 0;
+        window.setRating = (r) => {
+            currentRating = r;
+            const stars = document.querySelectorAll('#ratingStars i');
+            stars.forEach((star, index) => {
+                if (index < r) {
+                    star.className = 'fas fa-star';
+                } else {
+                    star.className = 'far fa-star';
+                }
+            });
+        };
+
+        window.submitFeedback = () => {
+            const text = document.getElementById('feedbackText').value;
+            if (!currentRating && !text) return showToast('Please rate or write feedback', 'error');
+            // Save to localStorage or send to server (simulate)
+            const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+            feedbacks.push({ rating: currentRating, text, date: new Date().toISOString() });
+            localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
+            showToast('Thank you for your feedback!');
+            document.getElementById('feedbackText').value = '';
+            setRating(0);
+        };
+
+        // ==================== UI CONTROLS ====================
+        window.switchTab = (tab) => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            document.getElementById(tab + '-tab').style.display = 'block';
+            if (tab === 'analytics') setTimeout(updateCharts, 100);
+        };
+
+        window.toggleTheme = () => {
+            const body = document.body;
+            body.classList.toggle('dark');
+            const icon = document.querySelector('#themeToggle i');
+            if (body.classList.contains('dark')) {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+            localStorage.setItem('theme', body.className);
+        };
+
+        // Load theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) document.body.className = savedTheme;
+        if (document.body.classList.contains('dark')) {
+            document.querySelector('#themeToggle i').className = 'fas fa-sun';
+        }
+
+        window.showSettings = () => {
+            document.getElementById('settingsModal').classList.add('active');
+        };
+
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        window.scrollToTop = () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.refreshApp = () => location.reload();
+
+        // ==================== TOAST ====================
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.background = type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#F59E0B';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // ==================== BACKUP & RESTORE ====================
+        window.backupData = () => {
+            const data = {
+                kitchenData,
+                inventory,
+                version: '1.0',
+                date: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast('Backup created');
+        };
+
+        window.restoreData = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        kitchenData = data.kitchenData || [];
+                        inventory = data.inventory || {};
+                        saveData();
+                        renderAll();
+                        showToast('Restore successful');
+                    } catch {
+                        showToast('Invalid file', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        };
+
+        window.clearAllData = () => {
+            if (confirm('Delete ALL data?')) {
+                kitchenData = [];
+                inventory = {};
+                localStorage.clear();
+                renderAll();
+                showToast('All data cleared');
+            }
+        };
+
+        // ==================== PWA INSTALL ====================
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'flex';
+        });
+        installBtn?.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        });
+
+        // ==================== INIT ====================
+        loadItems();
+        loadData();
+
+        // Auto-save every 30 seconds
+        setInterval(saveData, 30000);
+    </script>
+</body>
+</html>
