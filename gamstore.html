@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>PinkSnake Web Game Store</title>
+
+<link rel="manifest" href='data:application/json,{
+"name":"PinkSnake Game Store",
+"short_name":"PinkSnake",
+"display":"standalone",
+"start_url":".",
+"background_color":"#0f172a",
+"theme_color":"#0f172a",
+"icons":[{"src":"icon192.png","sizes":"192x192","type":"image/png"}]
+}'>
+
+<style>
+
+body{
+margin:0;
+font-family:system-ui;
+background:#0f172a;
+color:white;
+}
+
+header{
+background:#020617;
+padding:16px;
+position:sticky;
+top:0;
+z-index:10;
+}
+
+.title{
+font-size:22px;
+font-weight:bold;
+}
+
+.topbar{
+display:flex;
+gap:10px;
+margin-top:10px;
+}
+
+input{
+flex:1;
+padding:10px;
+border:none;
+border-radius:8px;
+}
+
+button{
+padding:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+background:#22c55e;
+color:white;
+}
+
+.section{
+padding:16px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:16px;
+}
+
+.card{
+background:#1e293b;
+padding:10px;
+border-radius:10px;
+text-align:center;
+}
+
+.card img{
+width:100%;
+border-radius:8px;
+}
+
+.play{
+margin-top:8px;
+background:#3b82f6;
+}
+
+#player{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+z-index:100;
+}
+
+iframe{
+width:100%;
+height:100%;
+border:none;
+}
+
+.close{
+position:absolute;
+top:10px;
+right:10px;
+background:red;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="title">🎮 PinkSnake Game Store</div>
+
+<div class="topbar">
+<input id="search" placeholder="Search games">
+<button id="installBtn" style="display:none">Install</button>
+</div>
+
+</header>
+
+<div class="section">
+<h2>Featured</h2>
+<div id="featured" class="grid"></div>
+</div>
+
+<div class="section">
+<h2>All Games</h2>
+<div id="store" class="grid"></div>
+</div>
+
+<div id="player">
+<button class="close" onclick="closeGame()">X</button>
+<iframe id="gameFrame"></iframe>
+</div>
+
+<script>
+
+/* GAME DATABASE */
+
+let games=[]
+
+/* generate 120 dummy games (future 500+) */
+
+for(let i=1;i<=120;i++){
+
+games.push({
+
+name:"Game "+i,
+category:"Arcade",
+icon:"icon192.png",
+url:"#"
+
+})
+
+}
+
+/* featured */
+
+let featured=games.slice(0,6)
+
+/* render */
+
+function render(list,target){
+
+let el=document.getElementById(target)
+
+el.innerHTML=""
+
+list.forEach(g=>{
+
+el.innerHTML+=`
+
+<div class="card">
+
+<img src="${g.icon}">
+
+<div>${g.name}</div>
+
+<button class="play" onclick="playGame('${g.url}')">
+Play
+</button>
+
+</div>
+
+`
+
+})
+
+}
+
+render(games,"store")
+render(featured,"featured")
+
+/* search */
+
+document.getElementById("search").oninput=e=>{
+
+let s=e.target.value.toLowerCase()
+
+let filtered=games.filter(g=>
+g.name.toLowerCase().includes(s)
+)
+
+render(filtered,"store")
+
+}
+
+/* game player */
+
+function playGame(url){
+
+document.getElementById("player").style.display="block"
+
+document.getElementById("gameFrame").src=url
+
+}
+
+function closeGame(){
+
+document.getElementById("player").style.display="none"
+
+document.getElementById("gameFrame").src=""
+
+}
+
+/* PWA INSTALL */
+
+let deferred
+
+window.addEventListener("beforeinstallprompt",e=>{
+
+e.preventDefault()
+
+deferred=e
+
+installBtn.style.display="block"
+
+})
+
+installBtn.onclick=()=>{
+
+deferred.prompt()
+
+}
+
+/* BASIC OFFLINE CACHE */
+
+if("serviceWorker" in navigator){
+
+let sw=`
+
+self.addEventListener('install',e=>{
+self.skipWaiting()
+})
+
+self.addEventListener('fetch',e=>{
+e.respondWith(
+caches.open('store').then(c=>
+c.match(e.request).then(r=>
+r||fetch(e.request).then(res=>{
+c.put(e.request,res.clone())
+return res
+})
+)
+)
+)
+})
+
+`
+
+let blob=new Blob([sw],{type:"text/javascript"})
+
+let url=URL.createObjectURL(blob)
+
+navigator.serviceWorker.register(url)
+
+}
+
+</script>
+
+</body>
+</html>
