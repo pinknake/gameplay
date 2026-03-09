@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>PinkSnake Web Game Store</title>
+
+<link rel="manifest" href='data:application/json,{
+"name":"PinkSnake Game Store",
+"short_name":"PinkSnake",
+"display":"standalone",
+"start_url":".",
+"background_color":"#0f172a",
+"theme_color":"#0f172a",
+"icons":[{"src":"icon192.png","sizes":"192x192","type":"image/png"}]
+}'>
+
+<style>
+
+body{
+margin:0;
+font-family:system-ui;
+background:#0f172a;
+color:white;
+}
+
+header{
+background:#020617;
+padding:14px;
+position:sticky;
+top:0;
+z-index:10;
+}
+
+.title{
+font-size:22px;
+font-weight:bold;
+}
+
+.controls{
+display:flex;
+gap:8px;
+margin-top:10px;
+}
+
+input,select{
+flex:1;
+padding:10px;
+border:none;
+border-radius:8px;
+}
+
+button{
+padding:10px;
+border:none;
+border-radius:8px;
+background:#22c55e;
+color:white;
+cursor:pointer;
+}
+
+.section{
+padding:16px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:14px;
+}
+
+.card{
+background:#1e293b;
+padding:10px;
+border-radius:10px;
+text-align:center;
+}
+
+.card img{
+width:100%;
+border-radius:8px;
+}
+
+.rating{
+font-size:12px;
+opacity:.8;
+}
+
+.play{
+margin-top:6px;
+background:#3b82f6;
+}
+
+#player{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+z-index:100;
+}
+
+iframe{
+width:100%;
+height:100%;
+border:none;
+}
+
+.close{
+position:absolute;
+top:10px;
+right:10px;
+background:red;
+}
+
+</style>
+
+</head>
+<body>
+
+<header>
+
+<div class="title">🎮 PinkSnake Game Store</div>
+
+<div class="controls">
+
+<input id="search" placeholder="Search games">
+
+<select id="category">
+<option value="all">All</option>
+<option>Arcade</option>
+<option>Puzzle</option>
+<option>Action</option>
+<option>Casual</option>
+</select>
+
+<button id="installBtn" style="display:none">Install</button>
+
+</div>
+
+</header>
+
+<div class="section">
+
+<h2>🔥 Featured</h2>
+<div id="featured" class="grid"></div>
+
+</div>
+
+<div class="section">
+
+<h2>🏆 Popular</h2>
+<div id="popular" class="grid"></div>
+
+</div>
+
+<div class="section">
+
+<h2>🕹 Recently Played</h2>
+<div id="recent" class="grid"></div>
+
+</div>
+
+<div class="section">
+
+<h2>🎮 All Games</h2>
+<div id="store" class="grid"></div>
+
+</div>
+
+<div id="player">
+
+<button class="close" onclick="closeGame()">X</button>
+
+<iframe id="gameFrame"></iframe>
+
+</div>
+
+<script>
+
+/* GAME DATABASE */
+
+let games=[]
+let categories=["Arcade","Puzzle","Action","Casual"]
+
+for(let i=1;i<=300;i++){
+
+let cat=categories[i%categories.length]
+
+games.push({
+
+id:i,
+name:"Game "+i,
+category:cat,
+icon:"icon192.png",
+rating:(Math.random()*2+3).toFixed(1),
+url:"#"
+
+})
+
+}
+
+/* SECTIONS */
+
+let featured=games.slice(0,8)
+
+let popular=[...games]
+.sort((a,b)=>b.rating-a.rating)
+.slice(0,8)
+
+/* RENDER */
+
+function render(list,target){
+
+let el=document.getElementById(target)
+
+el.innerHTML=""
+
+list.forEach(g=>{
+
+el.innerHTML+=`
+
+<div class="card">
+
+<img src="${g.icon}" loading="lazy">
+
+<div>${g.name}</div>
+
+<div class="rating">⭐ ${g.rating}</div>
+
+<button class="play" onclick="playGame(${g.id})">Play</button>
+
+</div>
+
+`
+
+})
+
+}
+
+render(featured,"featured")
+render(popular,"popular")
+render(games,"store")
+
+/* SEARCH + FILTER */
+
+function filter(){
+
+let s=search.value.toLowerCase()
+let c=category.value
+
+let filtered=games.filter(g=>{
+
+let name=g.name.toLowerCase().includes(s)
+let cat=(c==="all"||g.category===c)
+
+return name && cat
+
+})
+
+render(filtered,"store")
+
+}
+
+search.oninput=filter
+category.onchange=filter
+
+/* GAME PLAYER */
+
+function playGame(id){
+
+let g=games.find(x=>x.id===id)
+
+player.style.display="block"
+
+gameFrame.src=g.url
+
+saveRecent(id)
+
+}
+
+/* CLOSE */
+
+function closeGame(){
+
+player.style.display="none"
+gameFrame.src=""
+
+}
+
+/* RECENTLY PLAYED */
+
+function saveRecent(id){
+
+let r=JSON.parse(localStorage.getItem("recent")||"[]")
+
+r=r.filter(x=>x!==id)
+
+r.unshift(id)
+
+r=r.slice(0,10)
+
+localStorage.setItem("recent",JSON.stringify(r))
+
+showRecent()
+
+}
+
+function showRecent(){
+
+let r=JSON.parse(localStorage.getItem("recent")||"[]")
+
+let list=r.map(id=>games.find(g=>g.id===id))
+
+render(list,"recent")
+
+}
+
+showRecent()
+
+/* PWA INSTALL */
+
+let deferred
+
+window.addEventListener("beforeinstallprompt",e=>{
+
+e.preventDefault()
+
+deferred=e
+
+installBtn.style.display="block"
+
+})
+
+installBtn.onclick=()=>{
+
+deferred.prompt()
+
+}
+
+/* SERVICE WORKER */
+
+if("serviceWorker" in navigator){
+
+let sw=`
+
+self.addEventListener('install',e=>self.skipWaiting())
+
+self.addEventListener('fetch',e=>{
+e.respondWith(
+caches.open('pinksnake').then(c=>
+c.match(e.request).then(r=>
+r||fetch(e.request).then(res=>{
+c.put(e.request,res.clone())
+return res
+})
+)
+)
+)
+})
+
+`
+
+let blob=new Blob([sw],{type:"text/javascript"})
+
+navigator.serviceWorker.register(URL.createObjectURL(blob))
+
+}
+
+</script>
+
+</body>
+</html>
