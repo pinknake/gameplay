@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PinkSnake Game Store</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:system-ui;
+background:#0f172a;
+color:white;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px;
+background:#111827;
+}
+
+.logo{
+font-size:20px;
+font-weight:bold;
+color:#22c55e;
+}
+
+.top-btns button{
+margin-left:8px;
+padding:6px 12px;
+border:none;
+border-radius:6px;
+background:#22c55e;
+color:white;
+cursor:pointer;
+}
+
+.search{
+padding:10px;
+background:#0b1220;
+}
+
+.search input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:none;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+gap:14px;
+padding:14px;
+}
+
+.card{
+background:#111827;
+padding:10px;
+border-radius:12px;
+text-align:center;
+transition:.2s;
+}
+
+.card:hover{
+transform:scale(1.05);
+}
+
+.card img{
+width:100%;
+border-radius:10px;
+}
+
+.play{
+margin-top:6px;
+width:100%;
+padding:7px;
+border:none;
+border-radius:8px;
+background:#22c55e;
+color:white;
+cursor:pointer;
+}
+
+.ad{
+text-align:center;
+margin:10px;
+}
+
+.light{
+background:white;
+color:black;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">🎮 PinkSnake Store</div>
+
+<div class="top-btns">
+<button onclick="toggleTheme()">Theme</button>
+</div>
+</header>
+
+
+<!-- TOP AD -->
+
+<div class="ad">
+
+<script async="async" data-cfasync="false" src="https://tonicgoverness.com/f411671ee1d0146704d13266d9687f63/invoke.js"></script>
+<div id="container-f411671ee1d0146704d13266d9687f63"></div>
+
+</div>
+
+
+<div class="search">
+<input id="search" placeholder="Search games...">
+</div>
+
+
+<div class="grid" id="games"></div>
+
+
+<!-- BOTTOM AD -->
+
+<div class="ad">
+
+<script src="https://tonicgoverness.com/ef/1a/43/ef1a432319118bcb45467ce0fd7f2ff4.js"></script>
+
+<script>
+atOptions = {
+'key' : '2839a3c1ca8fc9e07589a1b83ea67a15',
+'format' : 'iframe',
+'height' : 50,
+'width' : 320,
+'params' : {}
+};
+</script>
+
+<script src="https://tonicgoverness.com/2839a3c1ca8fc9e07589a1b83ea67a15/invoke.js"></script>
+
+<script src="https://tonicgoverness.com/0f/59/fd/0f59fdb62ed9d691164bfa4b554309dd.js"></script>
+
+</div>
+
+
+<script>
+
+const games=[
+
+{name:"Snake",url:"https://playsnake.org"},
+{name:"Tetris",url:"https://tetris.com/play"},
+{name:"2048",url:"https://play2048.co"},
+{name:"Pacman",url:"https://freepacman.org"},
+{name:"Chess",url:"https://www.chess.com/play/computer"},
+{name:"Sudoku",url:"https://sudoku.com"},
+{name:"Minesweeper",url:"https://minesweeperonline.com"},
+{name:"Flappy Bird",url:"https://flappybird.io"},
+{name:"Helix Jump",url:"https://helixjump.io"},
+{name:"Stack",url:"https://stack.game"},
+{name:"Slope",url:"https://slopegame.io"},
+{name:"Moto X3M",url:"https://motox3m.io"},
+{name:"Drift Boss",url:"https://driftboss.io"},
+{name:"Basketball Stars",url:"https://basketballstars.io"},
+{name:"Subway Surfers",url:"https://subwaysurfersgame.io"}
+
+]
+
+const grid=document.getElementById("games")
+
+function showGames(list){
+
+grid.innerHTML=""
+
+list.forEach(g=>{
+
+grid.innerHTML+=`
+
+<div class="card">
+
+<img src="https://picsum.photos/200?random=${Math.random()}">
+
+<h4>${g.name}</h4>
+
+<button class="play" onclick="window.open('${g.url}','_blank')">Play</button>
+
+</div>
+
+`
+
+})
+
+}
+
+showGames(games)
+
+search.oninput=e=>{
+
+let v=e.target.value.toLowerCase()
+
+let filtered=games.filter(g=>g.name.toLowerCase().includes(v))
+
+showGames(filtered)
+
+}
+
+function toggleTheme(){
+
+document.body.classList.toggle("light")
+
+}
+
+</script>
+
+</body>
+</html>
