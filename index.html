@@ -1,7 +1,9 @@
 <!DOCTYPE html>
+
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>PinkSnake Game Store</title>
 
 <style>
@@ -14,17 +16,17 @@ color:white;
 }
 
 header{
-padding:20px;
 background:#020617;
+padding:20px;
 text-align:center;
-font-size:26px;
+font-size:24px;
 }
 
 #search{
-width:250px;
 padding:10px;
-border:none;
+width:220px;
 border-radius:6px;
+border:none;
 }
 
 .store{
@@ -37,7 +39,7 @@ padding:20px;
 
 .card{
 background:#1e293b;
-width:200px;
+width:180px;
 border-radius:10px;
 padding:10px;
 text-align:center;
@@ -58,7 +60,34 @@ border-radius:6px;
 cursor:pointer;
 }
 
+#player{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+}
+
+iframe{
+width:100%;
+height:100%;
+border:none;
+}
+
+.close{
+position:absolute;
+top:10px;
+right:10px;
+padding:10px;
+background:red;
+color:white;
+border:none;
+}
+
 </style>
+
 </head>
 
 <body>
@@ -71,18 +100,34 @@ cursor:pointer;
 
 <div class="store" id="store"></div>
 
+<div id="player">
+<button class="close" onclick="closeGame()">X</button>
+<iframe id="gameFrame"></iframe>
+</div>
+
 <script>
 
-let games=[]
+let games=[
 
-fetch("games.json")
-.then(res=>res.json())
-.then(data=>{
+{
+name:"Snake Game",
+img:"https://i.imgur.com/7UuJ+8.png",
+url:"https://playsnake.org/"
+},
 
-games=data
-showGames(data)
+{
+name:"Flappy Bird",
+img:"https://i.imgur.com/7UuJ+8.png",
+url:"https://flappybird.io/"
+},
 
-})
+{
+name:"Tetris",
+img:"https://i.imgur.com/7UuJ+8.png",
+url:"https://tetris.com/play-tetris"
+}
+
+]
 
 function showGames(list){
 
@@ -96,7 +141,7 @@ store.innerHTML+=`
 <div class="card">
 <img src="${g.img}">
 <h3>${g.name}</h3>
-<button onclick="play('${g.url}')">Play</button>
+<button onclick="playGame('${g.url}')">Play</button>
 </div>
 
 `
@@ -105,9 +150,17 @@ store.innerHTML+=`
 
 }
 
-function play(url){
+function playGame(url){
 
-location.href="play.html?game="+url
+document.getElementById("player").style.display="block"
+document.getElementById("gameFrame").src=url
+
+}
+
+function closeGame(){
+
+document.getElementById("player").style.display="none"
+document.getElementById("gameFrame").src=""
 
 }
 
@@ -120,6 +173,8 @@ let filtered=games.filter(g=>g.name.toLowerCase().includes(s))
 showGames(filtered)
 
 }
+
+showGames(games)
 
 </script>
 
