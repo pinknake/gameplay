@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sweet Crush</title>
+
+<style>
+
+body{
+margin:0;
+font-family:system-ui;
+background:#0f172a;
+color:white;
+text-align:center;
+}
+
+header{
+background:#111827;
+padding:14px;
+font-size:22px;
+font-weight:bold;
+}
+
+#info{
+margin:10px;
+font-size:18px;
+}
+
+#game{
+display:grid;
+grid-template-columns:repeat(8,50px);
+gap:6px;
+justify-content:center;
+margin-top:15px;
+}
+
+.cell{
+width:50px;
+height:50px;
+border-radius:10px;
+cursor:pointer;
+transition:.2s;
+}
+
+.cell:hover{
+transform:scale(1.1);
+}
+
+.red{background:#ef4444}
+.blue{background:#3b82f6}
+.green{background:#22c55e}
+.yellow{background:#eab308}
+.purple{background:#a855f7}
+
+button{
+margin-top:12px;
+padding:8px 14px;
+border:none;
+border-radius:8px;
+background:#22c55e;
+color:white;
+cursor:pointer;
+}
+
+#adtop,#adbottom{
+margin:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>🍬 Sweet Crush</header>
+
+<div id="adtop">
+<!-- TOP AD CODE -->
+</div>
+
+<div id="info">
+Level: <span id="level"></span> |
+Score: <span id="score"></span>
+</div>
+
+<div id="game"></div>
+
+<button onclick="resetGame()">Restart</button>
+
+<div id="adbottom">
+<!-- BOTTOM AD CODE -->
+</div>
+
+<script>
+
+const width=8
+const colors=["red","blue","green","yellow","purple"]
+
+let board=[]
+let selected=null
+
+let score=localStorage.getItem("score")||0
+let level=localStorage.getItem("level")||1
+
+document.getElementById("score").textContent=score
+document.getElementById("level").textContent=level
+
+const game=document.getElementById("game")
+
+function beep(freq){
+
+let ctx=new AudioContext()
+let osc=ctx.createOscillator()
+
+osc.frequency.value=freq
+osc.connect(ctx.destination)
+
+osc.start()
+setTimeout(()=>osc.stop(),120)
+
+}
+
+function randomColor(){
+return colors[Math.floor(Math.random()*colors.length)]
+}
+
+function createBoard(){
+
+board=[]
+game.innerHTML=""
+
+for(let i=0;i<width*width;i++){
+
+let color=randomColor()
+
+board.push(color)
+
+let cell=document.createElement("div")
+cell.className="cell "+color
+
+cell.dataset.id=i
+cell.onclick=()=>selectCell(i)
+
+game.appendChild(cell)
+
+}
+
+}
+
+function drawBoard(){
+
+document.querySelectorAll(".cell").forEach((c,i)=>{
+
+c.className="cell "+board[i]
+
+})
+
+}
+
+function selectCell(i){
+
+if(selected==null){
+
+selected=i
+return
+
+}
+
+swap(selected,i)
+selected=null
+
+}
+
+function swap(a,b){
+
+let temp=board[a]
+board[a]=board[b]
+board[b]=temp
+
+drawBoard()
+
+checkMatches()
+
+}
+
+function checkMatches(){
+
+let matched=false
+
+for(let i=0;i<board.length;i++){
+
+if(board[i]==board[i+1] && board[i]==board[i+2]){
+
+score=parseInt(score)+30
+matched=true
+
+beep(400)
+
+board[i]=randomColor()
+board[i+1]=randomColor()
+board[i+2]=randomColor()
+
+}
+
+}
+
+if(matched){
+
+document.getElementById("score").textContent=score
+
+if(score>level*300){
+
+level++
+document.getElementById("level").textContent=level
+beep(700)
+
+}
+
+localStorage.setItem("score",score)
+localStorage.setItem("level",level)
+
+drawBoard()
+
+}
+
+}
+
+function resetGame(){
+
+score=0
+level=1
+
+localStorage.setItem("score",score)
+localStorage.setItem("level",level)
+
+document.getElementById("score").textContent=score
+document.getElementById("level").textContent=level
+
+createBoard()
+
+}
+
+createBoard()
+
+</script>
+
+</body>
+</html>
