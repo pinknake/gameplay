@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PinkSnake Game Store</title>
+
+<link rel="manifest" href="data:application/json,{
+'name':'PinkSnake Game Store',
+'short_name':'PinkGames',
+'start_url':'.',
+'display':'standalone',
+'background_color':'#0f172a',
+'theme_color':'#6366f1',
+'icons':[{'src':'icon192.png','sizes':'192x192','type':'image/png'}]
+}">
+
+<style>
+
+body{
+margin:0;
+font-family:system-ui;
+background:#0f172a;
+color:white;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px;
+background:#111827;
+}
+
+.logo{
+font-size:22px;
+font-weight:bold;
+color:#6366f1;
+}
+
+button{
+background:#6366f1;
+border:none;
+padding:8px 14px;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+
+.search{
+padding:12px;
+background:#0b1220;
+}
+
+.search input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:none;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+gap:15px;
+padding:15px;
+}
+
+.card{
+background:#111827;
+padding:10px;
+border-radius:12px;
+transition:.2s;
+}
+
+.card:hover{
+transform:scale(1.05);
+}
+
+.card img{
+width:100%;
+border-radius:10px;
+}
+
+.card h3{
+font-size:14px;
+}
+
+.play{
+margin-top:5px;
+width:100%;
+}
+
+.light{
+background:white;
+color:black;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">🎮 PinkSnake Store</div>
+
+<div>
+
+<button onclick="toggleTheme()">🌓</button>
+
+<button id="installBtn">Install</button>
+
+</div>
+
+</header>
+
+<div class="search">
+<input type="text" placeholder="Search Games...">
+</div>
+
+<div class="grid" id="games"></div>
+
+<script>
+
+const games=[
+
+{name:"Snake",url:"https://playsnake.org"},
+{name:"Tetris",url:"https://tetris.com/play-tetris"},
+{name:"2048",url:"https://play2048.co"},
+{name:"Pacman",url:"https://freepacman.org"},
+{name:"Chess",url:"https://www.chess.com/play/computer"},
+{name:"Sudoku",url:"https://sudoku.com"},
+{name:"Minesweeper",url:"https://minesweeperonline.com"},
+{name:"Flappy Bird",url:"https://flappybird.io"},
+{name:"Helix Jump",url:"https://helixjump.io"},
+{name:"Stack",url:"https://stack.game"},
+{name:"Slope",url:"https://slopegame.io"},
+{name:"Moto X3M",url:"https://motox3m.io"}
+
+]
+
+const grid=document.getElementById("games")
+
+games.forEach(g=>{
+
+grid.innerHTML+=`
+
+<div class="card">
+
+<img src="https://picsum.photos/200?random=${Math.random()}">
+
+<h3>${g.name}</h3>
+
+<button class="play" onclick="window.open('${g.url}','_blank')">Play</button>
+
+</div>
+
+`
+
+})
+
+function toggleTheme(){
+
+document.body.classList.toggle("light")
+
+}
+
+let deferredPrompt
+
+window.addEventListener("beforeinstallprompt",e=>{
+
+e.preventDefault()
+
+deferredPrompt=e
+
+})
+
+installBtn.onclick=()=>{
+
+if(deferredPrompt){
+
+deferredPrompt.prompt()
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
