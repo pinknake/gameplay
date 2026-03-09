@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>GameHub Store</title><style>
+
+:root{
+--bg:#0f172a;
+--card:rgba(255,255,255,0.05);
+--text:#fff;
+--accent:#7c3aed;
+}
+
+.light{
+--bg:#f1f5f9;
+--card:#ffffff;
+--text:#111;
+}
+
+body{
+margin:0;
+font-family:system-ui;
+background:var(--bg);
+color:var(--text);
+transition:.3s;
+}
+
+/* HEADER */
+
+header{
+padding:20px;
+background:linear-gradient(135deg,#7c3aed,#3b82f6);
+color:white;
+font-size:22px;
+font-weight:bold;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+/* SEARCH BAR */
+
+.search{
+padding:16px;
+}
+
+.search input{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:none;
+font-size:15px;
+}
+
+/* GRID */
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+gap:18px;
+padding:18px;
+}
+
+/* CARD */
+
+.card{
+background:var(--card);
+border-radius:16px;
+padding:10px;
+text-align:center;
+backdrop-filter:blur(10px);
+cursor:pointer;
+transition:.25s;
+}
+
+.card:hover{
+transform:translateY(-5px) scale(1.03);
+}
+
+.card img{
+width:100%;
+border-radius:12px;
+}
+
+/* TITLE */
+
+.title{
+margin-top:6px;
+font-weight:600;
+}
+
+/* BADGE */
+
+.badge{
+font-size:11px;
+background:#22c55e;
+padding:3px 6px;
+border-radius:6px;
+display:inline-block;
+margin-top:4px;
+}
+
+/* PLAYER */
+
+#player{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+z-index:100;
+}
+
+iframe{
+width:100%;
+height:100%;
+border:none;
+}
+
+.close{
+position:absolute;
+top:10px;
+right:10px;
+background:red;
+border:none;
+padding:10px;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
+
+/* FOOTER */
+
+footer{
+text-align:center;
+padding:20px;
+opacity:0.6;
+}
+
+</style></head><body><header>
+🎮 GameHub
+<button onclick="toggleTheme()">🌓</button>
+</header><div class="search">
+<input id="search" placeholder="Search games...">
+</div><div id="store" class="grid"></div><div id="player">
+<button class="close" onclick="closeGame()">X</button>
+<iframe id="gameFrame"></iframe>
+</div><footer>
+Web Game Store
+</footer><script>
+
+/* GAME LIST */
+
+let games=[
+
+{name:"Snake",img:"https://picsum.photos/300?1",url:"#"},
+{name:"Flappy Bird",img:"https://picsum.photos/300?2",url:"#"},
+{name:"2048",img:"https://picsum.photos/300?3",url:"#"},
+{name:"Tetris",img:"https://picsum.photos/300?4",url:"#"},
+{name:"Jump Hero",img:"https://picsum.photos/300?5",url:"#"},
+{name:"Tap Speed",img:"https://picsum.photos/300?6",url:"#"},
+{name:"Puzzle Box",img:"https://picsum.photos/300?7",url:"#"},
+{name:"Block Drop",img:"https://picsum.photos/300?8",url:"#"},
+{name:"Racer Mini",img:"https://picsum.photos/300?9",url:"#"},
+{name:"Color Switch",img:"https://picsum.photos/300?10",url:"#"},
+{name:"Speed Click",img:"https://picsum.photos/300?11",url:"#"},
+{name:"Memory Match",img:"https://picsum.photos/300?12",url:"#"}
+]
+
+/* RENDER */
+
+function render(list){
+
+store.innerHTML=""
+
+list.forEach(g=>{
+
+store.innerHTML+=`
+
+<div class="card" onclick="playGame('${g.url}')">
+
+<img src="${g.img}">
+
+<div class="title">${g.name}</div>
+
+<div class="badge">Play</div>
+
+</div>
+
+`
+
+})
+
+}
+
+render(games)
+
+/* SEARCH */
+
+search.oninput=e=>{
+
+let s=e.target.value.toLowerCase()
+
+render(games.filter(g=>
+g.name.toLowerCase().includes(s)
+))
+
+}
+
+/* PLAYER */
+
+function playGame(url){
+
+player.style.display="block"
+gameFrame.src=url
+
+}
+
+function closeGame(){
+
+player.style.display="none"
+gameFrame.src=""
+
+}
+
+/* THEME */
+
+function toggleTheme(){
+
+document.body.classList.toggle("light")
+
+}
+
+</script></body>
+</html>
