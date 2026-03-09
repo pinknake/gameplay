@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>PinkSnake Games</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+transition:0.3s;
+}
+
+header{
+background:#020617;
+padding:20px;
+font-size:26px;
+}
+
+button{
+padding:10px 16px;
+margin:6px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.darkbtn{
+background:#22c55e;
+color:white;
+}
+
+.game{
+margin:30px;
+padding:20px;
+background:#1e293b;
+border-radius:10px;
+display:inline-block;
+}
+
+canvas{
+background:black;
+margin-top:10px;
+}
+
+/* light mode */
+
+.light{
+background:#f1f5f9;
+color:#111;
+}
+
+.light header{
+background:#e2e8f0;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>🎮 PinkSnake Game Hub</header>
+
+<button class="darkbtn" onclick="toggleMode()">Toggle Dark Mode</button>
+
+<!-- Snake Game -->
+
+<div class="game">
+
+<h2>🐍 Snake Game</h2>
+
+<canvas id="snake" width="300" height="300"></canvas>
+
+</div>
+
+<!-- Reaction Game -->
+
+<div class="game">
+
+<h2>🎯 Reaction Test</h2>
+
+<p id="reactText">Wait for green...</p>
+
+<button onclick="startReaction()">Start</button>
+
+</div>
+
+<!-- Memory Game -->
+
+<div class="game">
+
+<h2>🧠 Memory Game</h2>
+
+<p>Remember the number</p>
+
+<div id="memoryNumber"></div>
+
+<button onclick="memoryGame()">Show Number</button>
+
+</div>
+
+<script>
+
+/* dark mode */
+
+function toggleMode(){
+document.body.classList.toggle("light");
+}
+
+/* snake game */
+
+const canvas=document.getElementById("snake");
+const ctx=canvas.getContext("2d");
+
+let snake=[{x:150,y:150}];
+let food={x:90,y:90};
+let dx=10;
+let dy=0;
+
+function draw(){
+ctx.fillStyle="black";
+ctx.fillRect(0,0,300,300);
+
+ctx.fillStyle="lime";
+
+snake.forEach(s=>{
+ctx.fillRect(s.x,s.y,10,10);
+});
+
+ctx.fillStyle="red";
+ctx.fillRect(food.x,food.y,10,10);
+
+let head={x:snake[0].x+dx,y:snake[0].y+dy};
+
+snake.unshift(head);
+
+if(head.x===food.x && head.y===food.y){
+
+food.x=Math.floor(Math.random()*30)*10;
+food.y=Math.floor(Math.random()*30)*10;
+
+}else{
+
+snake.pop();
+
+}
+
+}
+
+setInterval(draw,100);
+
+/* keyboard control */
+
+document.addEventListener("keydown",e=>{
+
+if(e.key==="ArrowUp"){dx=0;dy=-10;}
+if(e.key==="ArrowDown"){dx=0;dy=10;}
+if(e.key==="ArrowLeft"){dx=-10;dy=0;}
+if(e.key==="ArrowRight"){dx=10;dy=0;}
+
+});
+
+/* reaction game */
+
+let startTime;
+
+function startReaction(){
+
+document.getElementById("reactText").innerText="Wait...";
+
+setTimeout(()=>{
+
+document.getElementById("reactText").innerText="CLICK NOW!";
+
+startTime=new Date().getTime();
+
+document.body.onclick=function(){
+
+let end=new Date().getTime();
+
+alert("Reaction time: "+(end-startTime)+" ms");
+
+document.body.onclick=null;
+
+}
+
+},Math.random()*3000+2000);
+
+}
+
+/* memory game */
+
+function memoryGame(){
+
+let num=Math.floor(Math.random()*100);
+
+document.getElementById("memoryNumber").innerText=num;
+
+setTimeout(()=>{
+
+document.getElementById("memoryNumber").innerText="?";
+
+},2000);
+
+}
+
+</script>
+
+</body>
+</html>
